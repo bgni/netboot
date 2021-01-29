@@ -1,41 +1,26 @@
-# -*- mode: yaml -*-
-
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  test-1.11:
-    working_directory: /go/src/go.universe.tf/netboot
+  build:
     docker:
-      - image: circleci/golang:1.11
+      # specify the version
+      - image: circleci/golang:1.9
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    #### TEMPLATE_NOTE: go expects specific checkout path representing url
+    #### expecting it in the form of
+    ####   /go/src/github.com/circleci/go-tool
+    ####   /go/src/bitbucket.org/circleci/go-tool
+    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - checkout
-      - run: make ci-prepare
-      - run: make build
-      - run: make test
-      - run: make lint
-  deploy:
-    working_directory: /go/src/go.universe.tf/netboot
-    docker:
-      - image: circleci/golang:1.11
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run: echo $CIRCLE_BRANCH
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-      - run: make ci-prepare
-      - run: make ci-push-images TAG=${CIRCLE_BRANCH:-${CIRCLE_TAG}}
-workflows:
-  version: 2
-  test-and-deploy:
-    jobs:
-      - test-1.11:
-          filters:
-            tags:
-              only: /.*/
-      - deploy:
-          filters:
-            branches:
-              ignore: /pull\/.*/
-            tags:
-              only: /.*/
-          requires:
-            - test-1.11
+
+      # specify any bash command here prefixed with `run: `
+      - run: go get -v -t -d ./...
+      - run: go test -v ./...
