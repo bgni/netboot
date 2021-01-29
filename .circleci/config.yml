@@ -19,13 +19,8 @@ jobs:
     ####   /go/src/bitbucket.org/circleci/go-tool
     ##working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
-      - checkout
-      - run: git clone https://github.com/danderson/netboot
-      - run: cd pixiecore
-      # specify any bash command here prefixed with `run: `
-      - run: go get -v -t -d ./...
-      - run: go test -v ./...
-      - run: GOOS=linux GOARCH=arm go build
+      - run: GOOS=linux GOARCH=arm go build  go.universe.tf/netboot/cmd/pixiecore
+
       - store_artifacts:
-          path: /tmp/artifact-1
-          destination: artifact-file      
+          path: pixiecore 
+          destination: pixiecore     
